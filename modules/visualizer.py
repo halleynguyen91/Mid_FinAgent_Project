@@ -1,41 +1,67 @@
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-import seaborn as sns
 import matplotlib.pyplot as plt
+import seaborn as sns
+import os
 
-# Đọc dữ liệu
-df = pd.read_csv('data/processed_data.csv')
+# --- XỬ LÝ ĐƯỜNG DẪN HỆ THỐNG ---
+# Lấy đường dẫn tuyệt đối đến thư mục chứa file visualizer.py
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# Định vị thư mục gốc của dự án (thư mục cha của modules)
+base_dir = os.path.dirname(current_dir)
+# Kết nối đến file dữ liệu trong thư mục data
+file_path = os.path.join(base_dir, 'data', 'processed_data.csv')
 
-# --- 1. BIỂU ĐỒ 1: Xu hướng giá (Price Trend) ---
-fig1 = px.line(df, x='Date', y=['SP500', 'Gold'], 
-               title='Biểu đồ 1: Xu hướng biến động giá S&P 500 và Vàng')
-fig1.show()
+# --- ĐỌC DỮ LIỆU VỚI XỬ LÝ NGOẠI LỆ ---
+try:
+    df = pd.read_csv(file_path)
+    print(f"Thành công: Đã tìm thấy dữ liệu tại {file_path}")
+except FileNotFoundError:
+    print("-" * 50)
+    print(f"LỖI: Không tìm thấy file dữ liệu tại: {file_path}")
+    print("HƯỚNG DẪN: Vui lòng chạy file 'modules/processor.py' trước để khởi tạo dữ liệu.")
+    print("-" * 50)
+    # Dừng chương trình nếu không có dữ liệu
+    exit()
 
-# --- 2. BIỂU ĐỒ 2: Bản đồ nhiệt tương quan (Correlation Heatmap) ---
-plt.figure(figsize=(10, 6))
-correlation_matrix = df[['SP500', 'Gold', 'SP500_Return', 'Gold_Return']].corr()
-sns.heatmap(correlation_matrix, annot=True, cmap='RdYlGn', center=0)
-plt.title('Biểu đồ 2: Bản đồ nhiệt tương quan tài sản (Correlation Heatmap)')
-plt.show() 
+# --- CẤU HÌNH HIỂN THỊ BIỂU ĐỒ ---
+plt.rcParams['figure.figsize'] = (16, 10)
+sns.set_style("whitegrid") # Thêm lưới cho biểu đồ trông chuyên nghiệp hơn
+fig, axes = plt.subplots(2, 2)
+plt.subplots_adjust(hspace=0.4, wspace=0.3)
 
-# --- 3. BIỂU ĐỒ 3: Phân phối tỷ suất sinh lời (Histogram) ---
-fig3 = px.histogram(df, x=['SP500_Return', 'Gold_Return'], 
-                   marginal="box", barmode="overlay",
-                   title='Biểu đồ 3: Phân phối tỷ suất sinh lời (Nhận diện rủi ro)')
-fig3.show()
+# 1. BIỂU ĐỒ XU HƯỚNG GIÁ (Price Trends)
+axes[0, 0].plot(df['Date'], df['SP500'], label='S&P 500', color='#1f77b4', linewidth=1.5)
+axes[0, 0].plot(df['Date'], df['Gold'], label='Gold', color='#ffd700', linewidth=1.5)
+axes[0, 0].set_title('1. Diễn biến giá S&P 500 và Vàng (2024-2026)', fontsize=12, fontweight='bold')
+axes[0, 0].legend()
+axes[0, 0].tick_params(axis='x', rotation=45)
 
-# --- 4. BIỂU ĐỒ 4: Dải Bollinger Bands (Bollinger Bands Analysis) ---
+# 2. BẢN ĐỒ NHIỆT TƯƠNG QUAN (Correlation Heatmap)
+corr_cols = ['SP500', 'Gold', 'SP500_Return', 'Gold_Return']
+corr_matrix = df[corr_cols].corr()
+sns.heatmap(corr_matrix, annot=True, cmap='RdYlGn', center=0, ax=axes[0, 1], fmt=".2f")
+axes[0, 1].set_title('2. Ma trận tương quan tài sản', fontsize=12, fontweight='bold')
+
+# 3. PHÂN PHỐI TỶ SUẤT SINH LỜI (Return Distribution)
+sns.histplot(df['SP500_Return'], kde=True, color='#1f77b4', label='S&P 500', ax=axes[1, 0], alpha=0.5)
+sns.histplot(df['Gold_Return'], kde=True, color='#ffd700', label='Gold', ax=axes[1, 0], alpha=0.5)
+axes[1, 0].set_title('3. Phân phối tỷ suất sinh lời hàng ngày', fontsize=12, fontweight='bold')
+axes[1, 0].legend()
+
+# 4. DẢI BOLLINGER BANDS CHO S&P 500 (Volatility Analysis)
 df['MA20'] = df['SP500'].rolling(window=20).mean()
 df['STD20'] = df['SP500'].rolling(window=20).std()
-df['Upper_Band'] = df['MA20'] + (df['STD20'] * 2)
-df['Lower_Band'] = df['MA20'] - (df['STD20'] * 2)
+df['Upper'] = df['MA20'] + (df['STD20'] * 2)
+df['Lower'] = df['MA20'] - (df['STD20'] * 2)
 
-fig4 = go.Figure()
-fig4.add_trace(go.Scatter(x=df['Date'], y=df['SP500'], name='Giá S&P 500', line=dict(color='blue')))
-fig4.add_trace(go.Scatter(x=df['Date'], y=df['Upper_Band'], name='Dải trên (Rủi ro)', line=dict(dash='dash', color='red')))
-fig4.add_trace(go.Scatter(x=df['Date'], y=df['Lower_Band'], name='Dải dưới (Cơ hội)', line=dict(dash='dash', color='green')))
-fig4.update_layout(title='Biểu đồ 4: Phân tích biến động Bollinger Bands (S&P 500)')
-fig4.show()
+axes[1, 1].plot(df['Date'], df['SP500'], color='black', label='Giá S&P 500', linewidth=1)
+axes[1, 1].plot(df['Date'], df['Upper'], 'r--', alpha=0.5, label='Upper Band')
+axes[1, 1].plot(df['Date'], df['Lower'], 'g--', alpha=0.5, label='Lower Band')
+axes[1, 1].fill_between(df.index, df['Lower'], df['Upper'], color='gray', alpha=0.1)
+axes[1, 1].set_title('4. Phân tích biến động Bollinger Bands', fontsize=12, fontweight='bold')
+axes[1, 1].legend(loc='best', fontsize='small')
+axes[1, 1].tick_params(axis='x', rotation=45)
 
-print("Hoàn thành xuất 4 biểu đồ")
+# HIỂN THỊ KẾT QUẢ
+print("Đang khởi tạo cửa sổ hiển thị biểu đồ...")
+plt.show()
