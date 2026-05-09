@@ -1,11 +1,10 @@
 import os
 import pandas as pd
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
 
 load_dotenv()
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-model = genai.GenerativeModel("gemini-1.5-flash")
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def load_data(filepath="data/processed_data.csv"):
     df = pd.read_csv(filepath, index_col=0, parse_dates=True)
@@ -39,7 +38,10 @@ Hãy viết báo cáo tiếng Việt gồm:
 
 Trích dẫn số liệu cụ thể trong phân tích.
 """
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt
+    )
     return response.text
 
 def save_report(report: str, output_path="data/ai_report.txt"):
