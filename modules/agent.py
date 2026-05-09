@@ -1,10 +1,10 @@
 import os
 import pandas as pd
 from dotenv import load_dotenv
-from google import genai
+from groq import Groq
 
 load_dotenv()
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 def load_data(filepath="data/processed_data.csv"):
     df = pd.read_csv(filepath, index_col=0, parse_dates=True)
@@ -24,25 +24,21 @@ def summarize_data(df):
     return summary
 
 def run_agent(summary: dict) -> str:
-    prompt = f"""
-Bạn là chuyên gia phân tích tài chính.
-Dữ liệu thống kê S&P 500 và Vàng:
-
-{summary}
-
+    prompt = f"""Bạn là chuyên gia phân tích tài chính.
+Dữ liệu thống kê S&P 500 và Vàng: {summary}
 Hãy viết báo cáo tiếng Việt gồm:
 1. Nhận xét xu hướng giá từng tài sản.
 2. Đánh giá mức độ biến động.
 3. Phân tích tương quan S&P 500 và Vàng.
 4. Khuyến nghị phân bổ danh mục đầu tư.
+Trích dẫn số liệu cụ thể trong phân tích."""
 
-Trích dẫn số liệu cụ thể trong phân tích.
-"""
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
+    response = client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.5,
     )
-    return response.text
+    return response.choices[0].message.content
 
 def save_report(report: str, output_path="data/ai_report.txt"):
     print("\n" + "="*60)
