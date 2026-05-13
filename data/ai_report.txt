@@ -1,0 +1,23 @@
+Báo cáo phân tích tài chính
+
+**Nhận xét xu hướng giá từng tài sản**
+
+Dựa trên dữ liệu thống kê, chúng ta có thể thấy rằng giá của Vàng (Gold) đang có xu hướng giảm nhẹ, với giá cuối cùng là 4519,5 USD, thấp hơn trung bình 30 ngày là 4656,6 USD. Trong khi đó, giá của S&P 500 đang có xu hướng tăng, với giá cuối cùng là 7200,75 USD, cao hơn trung bình 30 ngày là 6865,85 USD.
+
+**Đánh giá mức độ biến động**
+
+Mức độ biến động của Vàng được thể hiện qua độ lệch chuẩn là 132,22, trong khi độ lệch chuẩn của S&P 500 là 287,57. Điều này cho thấy rằng S&P 500 có mức độ biến động cao hơn Vàng. Ngoài ra, tỷ suất sinh lời (%) của Vàng là 113,42%, trong khi tỷ suất sinh lời (%) của S&P 500 là 40,34%. Điều này cho thấy rằng Vàng có tỷ suất sinh lời cao hơn S&P 500 trong dài hạn.
+
+**Phân tích tương quan S&P 500 và Vàng**
+
+Dựa trên dữ liệu thống kê, chúng ta có thể thấy rằng tỷ suất sinh lời (%) của Vàng và S&P 500 có sự khác biệt đáng kể. Tỷ suất sinh lời (%) của Vàng là 113,42%, trong khi tỷ suất sinh lời (%) của S&P 500 là 40,34%. Điều này cho thấy rằng Vàng và S&P 500 có xu hướng di chuyển ngược chiều nhau. Ngoài ra, độ lệch chuẩn của Vàng và S&P 500 cũng khác nhau, cho thấy rằng mức độ biến động của hai tài sản này cũng khác nhau.
+
+**Khuyến nghị phân bổ danh mục đầu tư**
+
+Dựa trên phân tích trên, chúng tôi khuyến nghị phân bổ danh mục đầu tư như sau:
+
+* Đối với nhà đầu tư ngắn hạn, nên tập trung vào S&P 500 do xu hướng tăng của chỉ số này.
+* Đối với nhà đầu tư dài hạn, nên phân bổ danh mục đầu tư giữa Vàng và S&P 500 để giảm thiểu rủi ro và tăng tỷ suất sinh lời.
+* Đối với nhà đầu tư muốn giảm thiểu rủi ro, nên tập trung vào Vàng do mức độ biến động thấp hơn của tài sản này.
+
+Tóm lại, dựa trên dữ liệu thống kê, chúng ta có thể thấy rằng Vàng và S&P 500 có xu hướng và mức độ biến động khác nhau. Khuyến nghị phân bổ danh mục đầu tư sẽ tùy thuộc vào mục tiêu và khẩu vị rủi ro của từng nhà đầu tư.
