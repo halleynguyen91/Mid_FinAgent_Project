@@ -21,6 +21,13 @@ def summarize_data(df):
                 (df[col].iloc[-1] / df[col].iloc[0] - 1) * 100, 2
             ),
         }
+    if len(df.columns) >= 2:
+        corr = df.tail(30).corr()
+        cols = df.columns.tolist()
+        for i in range(len(cols)):
+            for j in range(i+1, len(cols)):
+                key = f"Tương quan {cols[i]} vs {cols[j]}"
+                summary[key] = round(corr.loc[cols[i], cols[j]], 4)
     return summary
 
 def run_agent(summary: dict) -> str:
@@ -32,7 +39,6 @@ Hãy viết báo cáo tiếng Việt gồm:
 3. Phân tích tương quan S&P 500 và Vàng.
 4. Khuyến nghị phân bổ danh mục đầu tư.
 Trích dẫn số liệu cụ thể trong phân tích."""
-
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[{"role": "user", "content": prompt}],

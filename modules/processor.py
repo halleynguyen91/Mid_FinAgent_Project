@@ -25,6 +25,7 @@ df['SP500_MA30'] = df['SP500'].rolling(window=30).mean()
 
 # Tính độ biến động (Volatility - Rolling 30 days)
 df['SP500_Vol'] = df['SP500_Return'].rolling(window=30).std()
+df['Gold_Vol'] = df['Gold_Return'].rolling(window=30).std()
 
 # 4. Lưu dữ liệu đã xử lý
 df.dropna(inplace=True)

@@ -32,7 +32,7 @@ plt.subplots_adjust(hspace=0.4, wspace=0.3)
 # 1. BIỂU ĐỒ XU HƯỚNG GIÁ (Price Trends)
 axes[0, 0].plot(df['Date'], df['SP500'], label='S&P 500', color='#1f77b4', linewidth=1.5)
 axes[0, 0].plot(df['Date'], df['Gold'], label='Gold', color='#ffd700', linewidth=1.5)
-axes[0, 0].set_title('1. Diễn biến giá S&P 500 và Vàng (2024-2026)', fontsize=12, fontweight='bold')
+axes[0, 0].set_title('1. Price Trends (2024-2026)', fontsize=12, fontweight='bold')
 axes[0, 0].legend()
 axes[0, 0].tick_params(axis='x', rotation=45)
 
@@ -40,12 +40,12 @@ axes[0, 0].tick_params(axis='x', rotation=45)
 corr_cols = ['SP500', 'Gold', 'SP500_Return', 'Gold_Return']
 corr_matrix = df[corr_cols].corr()
 sns.heatmap(corr_matrix, annot=True, cmap='RdYlGn', center=0, ax=axes[0, 1], fmt=".2f")
-axes[0, 1].set_title('2. Ma trận tương quan tài sản', fontsize=12, fontweight='bold')
+axes[0, 1].set_title('2. Correlation Matrix', fontsize=12, fontweight='bold')
 
 # 3. PHÂN PHỐI TỶ SUẤT SINH LỜI (Return Distribution)
 sns.histplot(df['SP500_Return'], kde=True, color='#1f77b4', label='S&P 500', ax=axes[1, 0], alpha=0.5)
 sns.histplot(df['Gold_Return'], kde=True, color='#ffd700', label='Gold', ax=axes[1, 0], alpha=0.5)
-axes[1, 0].set_title('3. Phân phối tỷ suất sinh lời hàng ngày', fontsize=12, fontweight='bold')
+axes[1, 0].set_title('3. Return Distribution', fontsize=12, fontweight='bold')
 axes[1, 0].legend()
 
 # 4. DẢI BOLLINGER BANDS CHO S&P 500 (Volatility Analysis)
