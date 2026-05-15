@@ -3,65 +3,99 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import os
 
-# --- XỬ LÝ ĐƯỜNG DẪN HỆ THỐNG ---
-# Lấy đường dẫn tuyệt đối đến thư mục chứa file visualizer.py
+# --- 1. THIẾT LẬP ĐƯỜNG DẪN & DỮ LIỆU ---
 current_dir = os.path.dirname(os.path.abspath(__file__))
-# Định vị thư mục gốc của dự án (thư mục cha của modules)
 base_dir = os.path.dirname(current_dir)
-# Kết nối đến file dữ liệu trong thư mục data
 file_path = os.path.join(base_dir, 'data', 'processed_data.csv')
+save_dir = os.path.join(base_dir, 'visualizations')
 
-# --- ĐỌC DỮ LIỆU VỚI XỬ LÝ NGOẠI LỆ ---
+if not os.path.exists(save_dir):
+    os.makedirs(save_dir)
+
 try:
-    df = pd.read_csv(file_path)
-    print(f"Thành công: Đã tìm thấy dữ liệu tại {file_path}")
-except FileNotFoundError:
-    print("-" * 50)
-    print(f"LỖI: Không tìm thấy file dữ liệu tại: {file_path}")
-    print("HƯỚNG DẪN: Vui lòng chạy file 'modules/processor.py' trước để khởi tạo dữ liệu.")
-    print("-" * 50)
-    # Dừng chương trình nếu không có dữ liệu
+    # Sử dụng parse_dates để chuẩn hóa định dạng ngày ngay từ đầu
+    df = pd.read_csv(file_path, parse_dates=['Date'])
+    print(f"Success: Visualizer loaded data to {df['Date'].max().date()}")
+except Exception as e:
+    print(f"Error: {e}")
     exit()
 
-# --- CẤU HÌNH HIỂN THỊ BIỂU ĐỒ ---
-plt.rcParams['figure.figsize'] = (16, 10)
-sns.set_style("whitegrid") # Thêm lưới cho biểu đồ trông chuyên nghiệp hơn
-fig, axes = plt.subplots(2, 2)
-plt.subplots_adjust(hspace=0.4, wspace=0.3)
+sns.set_style("whitegrid")
 
-# 1. BIỂU ĐỒ XU HƯỚNG GIÁ (Price Trends)
-axes[0, 0].plot(df['Date'], df['SP500'], label='S&P 500', color='#1f77b4', linewidth=1.5)
-axes[0, 0].plot(df['Date'], df['Gold'], label='Gold', color='#ffd700', linewidth=1.5)
-axes[0, 0].set_title('1. Price Trends (2024-2026)', fontsize=12, fontweight='bold')
-axes[0, 0].legend()
-axes[0, 0].tick_params(axis='x', rotation=45)
+# --- 2. CÁC HÀM VẼ BIỂU ĐỒ RIÊNG BIỆT ---
 
-# 2. BẢN ĐỒ NHIỆT TƯƠNG QUAN (Correlation Heatmap)
-corr_cols = ['SP500', 'Gold', 'SP500_Return', 'Gold_Return']
-corr_matrix = df[corr_cols].corr()
-sns.heatmap(corr_matrix, annot=True, cmap='RdYlGn', center=0, ax=axes[0, 1], fmt=".2f")
-axes[0, 1].set_title('2. Correlation Matrix', fontsize=12, fontweight='bold')
+def plot_price_trends(df):
+    plt.figure(figsize=(12, 6))
+    plt.plot(df['Date'], df['SP500'], label='S&P 500', color='#1f77b4')
+    plt.plot(df['Date'], df['Gold'], label='Gold', color='#ffd700')
+    plt.title('1. Price Trends (S&P 500 vs Gold)', fontweight='bold')
+    plt.legend()
+    plt.savefig(os.path.join(save_dir, '1_price_trends.png'))
+    plt.close()
 
-# 3. PHÂN PHỐI TỶ SUẤT SINH LỜI (Return Distribution)
-sns.histplot(df['SP500_Return'], kde=True, color='#1f77b4', label='S&P 500', ax=axes[1, 0], alpha=0.5)
-sns.histplot(df['Gold_Return'], kde=True, color='#ffd700', label='Gold', ax=axes[1, 0], alpha=0.5)
-axes[1, 0].set_title('3. Return Distribution', fontsize=12, fontweight='bold')
-axes[1, 0].legend()
+def plot_correlation(df):
+    plt.figure(figsize=(10, 8))
+    corr_cols = ['SP500', 'Gold', 'SP500_Return', 'Gold_Return']
+    # center=0 giúp hiện màu đỏ khi tương quan âm, rất quan trọng cho nhận định rủi ro
+    sns.heatmap(df[corr_cols].corr(), annot=True, cmap='RdYlGn', center=0, fmt=".2f")
+    plt.title('2. Correlation Matrix', fontweight='bold')
+    plt.savefig(os.path.join(save_dir, '2_correlation.png'))
+    plt.close()
 
-# 4. DẢI BOLLINGER BANDS CHO S&P 500 (Volatility Analysis)
-df['MA20'] = df['SP500'].rolling(window=20).mean()
-df['STD20'] = df['SP500'].rolling(window=20).std()
-df['Upper'] = df['MA20'] + (df['STD20'] * 2)
-df['Lower'] = df['MA20'] - (df['STD20'] * 2)
+def plot_return_dist(df):
+    plt.figure(figsize=(12, 6))
+    sns.histplot(df['SP500_Return'], kde=True, color='#1f77b4', label='S&P 500', alpha=0.5)
+    sns.histplot(df['Gold_Return'], kde=True, color='#ffd700', label='Gold', alpha=0.5)
+    plt.title('3. Return Distribution', fontweight='bold')
+    plt.legend()
+    plt.savefig(os.path.join(save_dir, '3_return_distribution.png'))
+    plt.close()
 
-axes[1, 1].plot(df['Date'], df['SP500'], color='black', label='Giá S&P 500', linewidth=1)
-axes[1, 1].plot(df['Date'], df['Upper'], 'r--', alpha=0.5, label='Upper Band')
-axes[1, 1].plot(df['Date'], df['Lower'], 'g--', alpha=0.5, label='Lower Band')
-axes[1, 1].fill_between(df.index, df['Lower'], df['Upper'], color='gray', alpha=0.1)
-axes[1, 1].set_title('4. Phân tích biến động Bollinger Bands', fontsize=12, fontweight='bold')
-axes[1, 1].legend(loc='best', fontsize='small')
-axes[1, 1].tick_params(axis='x', rotation=45)
+def plot_bollinger(df):
+    plt.figure(figsize=(12, 6))
+    window = 20
+    ma = df['SP500'].rolling(window=window, min_periods=1).mean()
+    std = df['SP500'].rolling(window=window, min_periods=1).std()
+    upper = ma + (std * 2)
+    lower = ma - (std * 2)
+    plt.plot(df['Date'], df['SP500'], color='black', label='S&P 500 Price', linewidth=1)
+    plt.plot(df['Date'], upper, 'r--', alpha=0.5, label='Upper Band')
+    plt.plot(df['Date'], lower, 'g--', alpha=0.5, label='Lower Band')
+    plt.fill_between(df['Date'], lower, upper, color='gray', alpha=0.1)
+    plt.title('4. Bollinger Bands Analysis (S&P 500)', fontweight='bold')
+    plt.legend()
+    plt.savefig(os.path.join(save_dir, '4_bollinger_bands.png'))
+    plt.close()
 
-# HIỂN THỊ KẾT QUẢ
-print("Đang khởi tạo cửa sổ hiển thị biểu đồ...")
-plt.show()
+def plot_volatility_comparison(df):
+    plt.figure(figsize=(12, 6))
+    plt.plot(df['Date'], df['SP500_Vol'], label='S&P 500 Volatility', color='#1f77b4')
+    plt.plot(df['Date'], df['Gold_Vol'], label='Gold Volatility', color='#ffd700')
+    plt.title('5. Rolling Volatility Comparison (Risk Tracking)', fontweight='bold')
+    plt.ylabel('Standard Deviation of Returns')
+    plt.legend()
+    plt.savefig(os.path.join(save_dir, '5_volatility_comparison.png'))
+    plt.close()
+
+def plot_drawdown(df):
+    plt.figure(figsize=(12, 6))
+    for col, color in zip(['SP500', 'Gold'], ['#1f77b4', '#ffd700']):
+        rolling_max = df[col].cummax()
+        drawdown = (df[col] - rolling_max) / rolling_max
+        plt.fill_between(df['Date'], drawdown, 0, label=f'{col} Drawdown', color=color, alpha=0.3)
+    plt.title('6. Drawdown Analysis (Market Risk)', fontweight='bold')
+    plt.ylabel('Percentage Drop from Peak')
+    plt.legend()
+    plt.savefig(os.path.join(save_dir, '6_drawdown_analysis.png'))
+    plt.close()
+
+# --- 3. THỰC THI ---
+if __name__ == "__main__":
+    print("Đang khởi tạo và lưu 6 biểu đồ...")
+    plot_price_trends(df)
+    plot_correlation(df)
+    plot_return_dist(df)
+    plot_bollinger(df)
+    plot_volatility_comparison(df)
+    plot_drawdown(df)
+    print(f"Hoàn thành! 6 biểu đồ đã được lưu vào: {save_dir}")
