@@ -38,12 +38,12 @@ def get_visualization_paths():
     base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     viz_dir = os.path.join(base_dir, "visualizations")
     charts = {
-        "1. Price Trends Chart": os.path.join(viz_dir, "1_price_trends.png"),
-        "2. Asset Correlation Matrix": os.path.join(viz_dir, "2_correlation.png"),
-        "3. Return Distribution": os.path.join(viz_dir, "3_return_distribution.png"),
-        "4. Bollinger Bands": os.path.join(viz_dir, "4_bollinger_bands.png"),
-        "5. Volatility Comparison": os.path.join(viz_dir, "5_volatility_comparison.png"),
-        "6. Drawdown Analysis": os.path.join(viz_dir, "6_drawdown_analysis.png"),
+        "1. Price Trends Chart": os.path.join("visualizations", "1_price_trends.png"),
+        "2. Asset Correlation Matrix": os.path.join("visualizations", "2_correlation.png"),
+        "3. Return Distribution": os.path.join("visualizations", "3_return_distribution.png"),
+        "4. Bollinger Bands": os.path.join("visualizations", "4_bollinger_bands.png"),
+        "5. Volatility Comparison": os.path.join("visualizations", "5_volatility_comparison.png"),
+        "6. Drawdown Analysis": os.path.join("visualizations", "6_drawdown_analysis.png"),
     }
     return charts
 

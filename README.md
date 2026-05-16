@@ -29,46 +29,50 @@ To run the full pipeline, please execute the scripts in the following order:
 
 # Step 1: Data Collection
     Command: python modules/data_loader.py
-    
+
     Technical Details:
 - Source: The system utilizes the yfinance library to establish a secure connection with Yahoo Finance API.
-- Assets Tracked: * S&P 500 (^GSPC): Representing the benchmark for the US Equity market.
-- Gold (GC=F): Representing the primary safe-haven asset in the commodities market.
+- Assets Tracked: 
+    + S&P 500 (^GSPC): Representing the benchmark for the US Equity market.
+    + Gold (GC=F): Representing the primary safe-haven asset in the commodities market.
 
-    Timeframe: Automatically fetches historical daily data from January 1st, 2024, up to the current live date (Real-time synchronization).
+    Timeframe: 
+- Automatically fetches historical daily data from January 1st, 2024, up to the current live date (Real-time synchronization).
     
     Mechanism: 
-1.  The script validates the connection to the financial servers.
-2.  It extracts Adjusted Closing Prices to account for corporate actions (splits/dividends).
-3.  Output: Saves the raw dataset as data/raw_data.csv for the next stage of processing.
+- The script validates the connection to the financial servers.
+- It extracts Adjusted Closing Prices to account for corporate actions (splits/dividends).
+- Output: Saves the raw dataset as data/raw_data.csv for the next stage of processing.
 
 # Step 2: Data Processing
-    Command: python modules/processor.py 
-    
-    Technical Details:
-Mechanism: 
-1. The script loads the data/raw_data.csv and initiates a cleaning pipeline to handle missing values via forward-fill (FFill) and removes any duplicate records. 
-2. It normalizes date formats and ensures all numerical data is correctly typed for time-series analysis.
+   Command: python modules/processor.py
+
+   Mechanisms:
+- Data Cleansing: The script loads data/raw_data.csv, removes any duplicate rows, and converts the date column into standardized datetime formats to align the time-series sequence chronologically.
+- Outlier Mitigation: Price data for both S&P 500 and Gold is clipped at the 1st and 99th percentiles (Winsorization) to neutralize extreme market anomalies from biasing the analysis.
+- Data Imputation: It handles missing entries by applying a forward-fill (ffill) method, carrying the last known price forward to bridge gaps from weekends and market holidays.
 
 Feature Engineering:
-- Performance Metrics: Calculates daily percentage returns for both assets (SP500_Return and Gold_Return).
-- Trend Indicators: Computes 7-day (SP500_MA7) and 30-day (SP500_MA30) simple moving averages to identify price momentum and trends.
-- Risk Assessment: Derives the rolling standard deviation for the S&P 500 (SP500_Vol) and Gold (Gold_Vol) to measure market volatility and asset risk.
-- Output: Saves the enriched dataset as data/processed_data.csv.
+- Performance Metrics: Calculates daily percentage returns for both assets (SP500_Return and Gold_Return) across consecutive trading days.
+- Trend Indicators: Computes 7-day (SP500_MA7) and 30-day (SP500_MA30) simple moving averages for the S&P 500 to smooth out short-term price noise.
+- Risk Assessment: Derives the 30-day rolling standard deviations of daily returns (SP500_Vol and Gold_Vol) to actively track changing market volatility.
+
+Output: Removes initial null rows caused by technical transformations and saves the finalized dataset as data/processed_data.csv.
 
 
 # Step 3: Visualization
     Command: python modules/visualizer.py 
-    Technical Details:
+
+    Technical details:
 - Library Stack: Utilizes Matplotlib for core plotting, Seaborn for advanced statistical aesthetics, and the os library for robust absolute path management across different operating systems.
 - System Design:  Dynamic Path Resolution: Automatically detects the project's base directory to locate data/processed_data.csv regardless of where the script is executed.
 - Exception Handling: Includes a built-in validation system that alerts the user and provides instructions if the required dataset is missing.
 
     Dashboard Inventory (2x2 Grid):
-1. Price Trend Analysis: A synchronized line chart displaying the price trajectory of the S&P 500 (Blue) and Gold (Yellow) for the 2024-2026 period.
-2. Correlation Heatmap: A RdYlGn (Red-Yellow-Green) color-coded matrix measuring the statistical correlation between asset prices and daily returns.
-3. Return Distribution: A combined Histogram and Kernel Density Estimation (KDE) plot comparing the risk-reward profiles of both assets.
-4. Bollinger Bands Volatility Analysis: Dynamically calculates 20-day Moving Averages and Standard Deviations to visualize market expansion, contraction, and potential breakout zones for the S&P 500.
+- Price Trend Analysis: A synchronized line chart displaying the price trajectory of the S&P 500 (Blue) and Gold (Yellow) for the 2024-2026 period.
+- Correlation Heatmap: A RdYlGn (Red-Yellow-Green) color-coded matrix measuring the statistical correlation between asset prices and daily returns.
+- Return Distribution: A combined Histogram and Kernel Density Estimation (KDE) plot comparing the risk-reward profiles of both assets.
+- Bollinger Bands Volatility Analysis: Dynamically calculates 20-day Moving Averages and Standard Deviations to visualize market expansion, contraction, and potential breakout zones for the S&P 500.
 
 Output: Renders an interactive 16x10 inch multi-panel dashboard directly within the VS Code environment for professional financial reporting.
 

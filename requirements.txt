@@ -1,6 +1,7 @@
 yfinance
 pandas
-python-dotenv
+numpy
+dotenv
 groq
 seaborn 
-matplotlib 
+matplotlib.pyplot 
